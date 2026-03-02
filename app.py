@@ -171,22 +171,22 @@ def login():
         conn = sqlite3.connect("inventory.db")
         cur = conn.cursor()
         cur.execute(
-            "SELECT id, username, role FROM users WHERE username=? AND password=?",
+            "SELECT id, role FROM users WHERE username=? AND password=?",
             (username, password)
         )
         user = cur.fetchone()
         conn.close()
 
         if user:
-            session["user_id"] = user[0]
-            session["username"] = user[1]
-            session["role"] = user[2]
+            session["user_id"] = user[0]   # ← ★これが命
+            session["username"] = username
+            session["role"] = user[1]
             return redirect("/")
         else:
-            return render_template("login.html", error="ログイン失敗")
+            return "ログイン失敗"
 
     return render_template("login.html")
-
+    
 @app.route("/logout")
 def logout():
     session.clear()
@@ -319,6 +319,7 @@ def delete_user():
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
