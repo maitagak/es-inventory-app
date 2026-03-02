@@ -21,10 +21,9 @@
 <h1>在庫管理アプリ</h1>
 
 <form action="/add" method="post">
-  商品名：
   <input type="text" name="name" placeholder="商品名" required>
   <input type="number" name="quantity" placeholder="数量" required>
-  <input type="text" name="unit" placeholder="単位（例：個、kg、本）" required>
+  <input type="text" name="unit" placeholder="単位" required>
   <button type="submit">登録</button>
 </form>
 
@@ -44,25 +43,10 @@
   {% for item in items %}
   <tr>
     <td>{{ item[0] }}</td>
-
+    <td>{{ item[1] }}</td>
+    <td>{{ item[2] }}</td>
+    <td>{{ item[3] }}</td>
     <td>
-      <input type="text" name="name" value="{{ item[1] }}" form="edit-{{ item[0] }}">
-    </td>
-
-    <td>
-      <input type="number" name="quantity" value="{{ item[2] }}" style="width:60px;" form="edit-{{ item[0] }}">
-    </td>
-
-    <td>
-      <input type="text" name="unit" value="{{ item[3] }}" style="width:60px;" style="width:60px;" form="edit-{{ item[0] }}">
-    </td>
-
-    <td>
-      <form id="edit-{{ item[0] }}" action="/edit" method="post" style="display:inline;">
-        <input type="hidden" name="id" value="{{ item[0] }}">
-        <button type="submit">保存</button>
-      </form>
-
       <form action="/update" method="post" style="display:inline;">
         <input type="hidden" name="id" value="{{ item[0] }}">
         <button name="action" value="plus">＋</button>
