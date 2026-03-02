@@ -28,6 +28,8 @@ def add_log(action, item_name):
 def init_db():
     conn = sqlite3.connect("inventory.db")
     cur = conn.cursor()
+
+    # items
     cur.execute("""
         CREATE TABLE IF NOT EXISTS items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,6 +38,28 @@ def init_db():
             unit TEXT
         )
     """)
+
+    # users
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT,
+            role TEXT
+        )
+    """)
+
+    # 🔴 これが不足していた
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user TEXT,
+            action TEXT,
+            item_name TEXT,
+            created_at TEXT
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -295,5 +319,6 @@ def delete_user():
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
