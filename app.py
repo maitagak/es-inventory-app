@@ -3,18 +3,15 @@ from flask import Flask, render_template, request, redirect, session
 import sqlite3
 from datetime import datetime
 
-app = Flask(__name__)   # ← ① 先に app を作る
-app.secret_key = "secret_key_for_inventory_app"  # ← ② その後で設定
+app = Flask(__name__)
+app.secret_key = "secret_key_for_inventory_app"
 
 print("DB path:", os.path.abspath("inventory.db"))
 
-app = Flask(__name__)
-app.secret_key = "secret123"
 
 def add_log(action, item_name):
     conn = sqlite3.connect("inventory.db")
     cur = conn.cursor()
-
     cur.execute(
         "INSERT INTO logs (user, action, item_name, created_at) VALUES (?, ?, ?, ?)",
         (
@@ -24,9 +21,9 @@ def add_log(action, item_name):
             datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         )
     )
-
     conn.commit()
     conn.close()
+
 
 def init_db():
     conn = sqlite3.connect("inventory.db")
@@ -42,6 +39,7 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 @app.route("/")
 def index():
     if "user_id" not in session:
@@ -54,6 +52,11 @@ def index():
     conn.close()
 
     return render_template("index.html", items=items)
+
+
+if __name__ == "__main__":
+    init_db()
+    app.run()
 
 @app.route("/add", methods=["POST"])
 def add_item():
@@ -292,4 +295,5 @@ def delete_user():
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
