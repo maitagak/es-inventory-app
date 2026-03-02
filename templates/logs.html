@@ -1,0 +1,21 @@
+<h2>操作ログ（管理者専用）</h2>
+
+<table border="1">
+<tr>
+  <th>日時</th>
+  <th>ユーザー</th>
+  <th>操作</th>
+  <th>商品</th>
+</tr>
+
+{% for log in logs %}
+<tr>
+  <td>{{ log[3] }}</td>
+  <td>{{ log[0] }}</td>
+  <td>{{ log[1] }}</td>
+  <td>{{ log[2] }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<a href="/">戻る</a>
