@@ -8,6 +8,9 @@ DB_PATH = os.path.join(BASE_DIR, "inventory.db")
 
 print("DB path:", DB_PATH)
 
+app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
+
 def get_db():
     return sqlite3.connect(DB_PATH)
 
@@ -312,8 +315,7 @@ def delete_user():
 with app.app_context():
     init_db()
 
-app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
+
 
 @app.route("/")
 def index():
