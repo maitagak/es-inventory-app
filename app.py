@@ -1,13 +1,13 @@
+import os
+import sqlite3
+from datetime import datetime
+from flask import Flask, render_template, request, redirect, session
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "inventory.db")
 
 def get_db():
     return sqlite3.connect(DB_PATH)
-
-import os
-from flask import Flask, render_template, request, redirect, session
-import sqlite3
-from datetime import datetime
 
 print("DB path:", os.path.abspath("inventory.db"))
 
@@ -315,5 +315,8 @@ def delete_user():
 with app.app_context():
     init_db()
 
-if __name__ == "__main__":
-    app.run(debug=True)
+app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
+
+# ★ gunicornでも必ず実行される
+init_db()
