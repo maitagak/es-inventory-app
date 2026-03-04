@@ -1,18 +1,21 @@
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "inventory.db")
+
+def get_db():
+    return sqlite3.connect(DB_PATH)
+
 import os
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
 from datetime import datetime
 
-app = Flask(__name__)   # ← ① 先に app を作る
-app.secret_key = "secret_key_for_inventory_app"  # ← ② その後で設定
-
 print("DB path:", os.path.abspath("inventory.db"))
 
 app = Flask(__name__)
-app.secret_key = "secret123"
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 def add_log(action, item_name):
-    conn = sqlite3.connect("inventory.db")
+    conn = get_db()
     cur = conn.cursor()
 
     cur.execute(
@@ -29,8 +32,9 @@ def add_log(action, item_name):
     conn.close()
 
 def init_db():
-    conn = sqlite3.connect("inventory.db")
+    conn = get_db()
     cur = conn.cursor()
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,6 +43,26 @@ def init_db():
             unit TEXT
         )
     """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT,
+            password TEXT,
+            role TEXT
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user TEXT,
+            action TEXT,
+            item_name TEXT,
+            created_at TEXT
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -47,7 +71,7 @@ def index():
     if "user_id" not in session:
         return redirect("/login")
 
-    conn = sqlite3.connect("inventory.db")
+    conn = get_db()
     cur = conn.cursor()
     cur.execute("SELECT id, name, quantity, unit FROM items")
     items = cur.fetchall()
@@ -61,7 +85,7 @@ def add_item():
     quantity = request.form["quantity"]
     unit = request.form["unit"]
 
-    conn = sqlite3.connect("inventory.db")
+    conn = get_db()
     cur = conn.cursor()
     cur.execute(
         "INSERT INTO items (name, quantity, unit) VALUES (?, ?, ?)",
@@ -79,7 +103,7 @@ def update_item():
     item_id = request.form["id"]
     action = request.form["action"]
 
-    conn = sqlite3.connect("inventory.db")
+    conn = get_db()
     cur = conn.cursor()
 
     # ① 変更前の情報を取得
@@ -121,7 +145,7 @@ def delete_item():
 
     item_id = request.form["id"]
 
-    conn = sqlite3.connect("inventory.db")
+    conn = get_db()
     cur = conn.cursor()
 
     cur.execute("SELECT name FROM items WHERE id=?", (item_id,))
@@ -141,7 +165,7 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        conn = sqlite3.connect("inventory.db")
+        conn = get_db()
         cur = conn.cursor()
         cur.execute(
             "SELECT id, username, role FROM users WHERE username=? AND password=?",
@@ -170,7 +194,7 @@ def manage_users():
     if session.get("role") != "admin":
         return "権限がありません", 403
 
-    conn = sqlite3.connect("inventory.db")
+    conn = get_db()
     cur = conn.cursor()
 
     if request.method == "POST":
@@ -195,7 +219,7 @@ def view_logs():
     if session.get("role") != "admin":
         return "権限がありません", 403
 
-    conn = sqlite3.connect("inventory.db")
+    conn = get_db()
     cur = conn.cursor()
     cur.execute(
         "SELECT user, action, item_name, created_at FROM logs ORDER BY id DESC"
@@ -212,7 +236,7 @@ def edit_item():
     quantity = int(request.form["quantity"])
     unit = request.form["unit"]
 
-    conn = sqlite3.connect("inventory.db")
+    conn = get_db()
     cur = conn.cursor()
 
     # 変更前取得
@@ -250,7 +274,7 @@ def delete_user():
 
     user_id = request.form["user_id"]
 
-    conn = sqlite3.connect("inventory.db")
+    conn = get_db()
     cur = conn.cursor()
 
     # 削除対象の情報取得
@@ -288,8 +312,8 @@ def delete_user():
 
     return redirect("/admin/users")
 
-# ⚠️ これが必ず「一番最後」
-if __name__ == "__main__":
+with app.app_context():
     init_db()
-    app.run(host="0.0.0.0", port=5000, debug=True)
 
+if __name__ == "__main__":
+    app.run(debug=True)
