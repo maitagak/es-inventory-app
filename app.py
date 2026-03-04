@@ -1,18 +1,23 @@
 import os
 import sqlite3
-from datetime import datetime
 from flask import Flask, render_template, request, redirect, session
+from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "inventory.db")
 
-def get_db():
-    return sqlite3.connect(DB_PATH)
+print("DB path:", DB_PATH)
+
+app = Flask(__name__)
+app.secret_key = "secret123"
 
 print("DB path:", os.path.abspath("inventory.db"))
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
+
+def get_db():
+    return sqlite3.connect(DB_PATH)
 
 def add_log(action, item_name):
     conn = get_db()
