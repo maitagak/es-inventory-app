@@ -315,12 +315,6 @@ def delete_user():
 with app.app_context():
     init_db()
 
-
-
-@app.route("/")
-def index():
-    return "Inventory App is running!"
-
 # ★ gunicornでも必ず実行される
 init_db()
 
