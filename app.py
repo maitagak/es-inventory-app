@@ -35,6 +35,7 @@ def init_db():
     conn = get_db()
     cur = conn.cursor()
 
+    # --- テーブル作成 ---
     cur.execute("""
         CREATE TABLE IF NOT EXISTS items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,7 +48,7 @@ def init_db():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT,
+            username TEXT UNIQUE,
             password TEXT,
             role TEXT
         )
@@ -62,6 +63,31 @@ def init_db():
             created_at TEXT
         )
     """)
+
+    # --- 初期ユーザー定義 ---
+    initial_users = [
+        ("Itagaki",  "0000", "admin"),
+        ("Mizukami", "0000", "admin"),
+        ("TeruyaM",  "0000", "admin"),
+        ("Akamine",  "0000", "user"),
+        ("TeruyaB",  "0000", "user"),
+        ("Yamauchi", "0000", "user"),
+        ("Suzuki",   "0000", "user"),
+        ("Inafuku",  "0000", "user"),
+        ("Kokuba",   "0000", "user"),
+    ]
+
+    # --- 既存チェックしてなければ追加 ---
+    for username, password, role in initial_users:
+        cur.execute(
+            "SELECT id FROM users WHERE username = ?",
+            (username,)
+        )
+        if cur.fetchone() is None:
+            cur.execute(
+                "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+                (username, password, role)
+            )
 
     conn.commit()
     conn.close()
@@ -311,9 +337,6 @@ def delete_user():
     )
 
     return redirect("/admin/users")
-
-with app.app_context():
-    init_db()
 
 # ★ gunicornでも必ず実行される
 init_db()
