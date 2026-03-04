@@ -9,7 +9,7 @@ DB_PATH = os.path.join(BASE_DIR, "inventory.db")
 print("DB path:", DB_PATH)
 
 app = Flask(__name__)
-app.secret_key = "secret123"
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 print("DB path:", os.path.abspath("inventory.db"))
 
