@@ -325,3 +325,5 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
 
 # ★ gunicornでも必ず実行される
 init_db()
+
+print("URL MAP:", app.url_map)
