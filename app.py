@@ -8,14 +8,6 @@ DB_PATH = os.path.join(BASE_DIR, "inventory.db")
 
 print("DB path:", DB_PATH)
 
-app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
-
-print("DB path:", os.path.abspath("inventory.db"))
-
-app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
-
 def get_db():
     return sqlite3.connect(DB_PATH)
 
@@ -322,6 +314,10 @@ with app.app_context():
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
+
+@app.route("/")
+def index():
+    return "Inventory App is running!"
 
 # ★ gunicornでも必ず実行される
 init_db()
