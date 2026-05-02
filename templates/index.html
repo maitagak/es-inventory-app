@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>在庫管理</title>
+</head>
+<body>
+
+<p>
+ログイン中：{{ session.username }}
+｜<a href="/logout">ログアウト</a>
+</p>
+
+{% if session.role == "admin" %}
+<hr>
+<a href="/admin/users">ユーザー管理</a> |
+<a href="/admin/logs">操作ログ</a>
+<hr>
+{% endif %}
+
+<h1>在庫管理アプリ</h1>
+
+<form action="/add" method="post">
+  商品名：
+  <input type="text" name="name" placeholder="商品名" required>
+  <input type="number" name="quantity" placeholder="数量" required>
+  <input type="text" name="unit" placeholder="単位（例：個、kg、本）" required>
+  <button type="submit">登録</button>
+</form>
+
+<hr>
+
+<h2>商品一覧</h2>
+
+<table border="1">
+  <tr>
+    <th>ID</th>
+    <th>商品名</th>
+    <th>在庫</th>
+    <th>単位</th>
+    <th>操作</th>
+  </tr>
+
+  {% for item in items %}
+  <tr>
+    <td>{{ item[0] }}</td>
+
+    <td>
+      <input type="text" name="name" value="{{ item[1] }}" form="edit-{{ item[0] }}">
+    </td>
+
+    <td>
+      <input type="number" name="quantity" value="{{ item[2] }}" style="width:60px;" form="edit-{{ item[0] }}">
+    </td>
+
+    <td>
+      <input type="text" name="unit" value="{{ item[3] }}" style="width:60px;" style="width:60px;" form="edit-{{ item[0] }}">
+    </td>
+
+    <td>
+      <form id="edit-{{ item[0] }}" action="/edit" method="post" style="display:inline;">
+        <input type="hidden" name="id" value="{{ item[0] }}">
+        <button type="submit">保存</button>
+      </form>
+
+      <form action="/update" method="post" style="display:inline;">
+        <input type="hidden" name="id" value="{{ item[0] }}">
+        <button name="action" value="plus">＋</button>
+        <button name="action" value="minus">－</button>
+      </form>
+
+      {% if session.role == "admin" %}
+      <form action="/delete" method="post" style="display:inline;">
+        <input type="hidden" name="id" value="{{ item[0] }}">
+        <button type="submit">削除</button>
+      </form>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+</body>
+</html>
